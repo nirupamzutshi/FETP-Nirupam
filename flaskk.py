@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, url_for, session
 import secrets
 import requests
 
+
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 CLIENT_ID = '1035490928140-bbleqfca1ca217be6rc0b25idci5k6ut.apps.googleusercontent.com' 
@@ -10,7 +11,7 @@ REDIRECT_URI = 'http://localhost:5000/oauth2callback'
 
 @app.route('/')
 def home():
-    return 'Welcome to your Gmail sign-in application! <a href="/login">Sign in with Gmail</a>'
+    return 'Welcome to your Gmail sign-in application! <a href="/login">Sign in with Gmail</a> <a href="/display"> Display design </a>'
 
 @app.route('/login')
 def login():
@@ -65,6 +66,37 @@ def logout():
     
     session.clear()
     return redirect(url_for('home'))
+
+def generate_pattern(lines):
+    pattern = ""
+    for i in range(lines):
+        spaces = " " * (lines - i - 1)
+        pattern += spaces + request.args.formula[i:lines] + spaces + "<br>"
+    return pattern
+
+@app.route('/design')
+def design():
+    lines = int(request.args.get('lines', 0))
+    if lines <= 0:
+        return "Please enter a valid number of lines greater than 0."
+
+    result = generate_pattern(lines)
+    
+    # Return HTML directly
+    return f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Design Pattern</title>
+        </head>
+        <body>
+            <div>{result}</div>
+        </body>
+        </html>
+    """
+
 
 if __name__ == '__main__':
     app.run(debug=True)
